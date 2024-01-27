@@ -1,19 +1,24 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import RegisterInput from "./inputs/register-input";
 import { Button } from "../ui/button";
+import { toast } from "react-hot-toast";
 
 type Variant = "Login" | "Register";
 
 const RegisterForm: React.FC = () => {
   const [variant, setVariant] = useState<Variant>("Register");
-  const [error, setError] = useState<string | any>(null);
   const [name, setName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  const router = useRouter();
+
 
   const toggleVariant = useCallback(() => {
     if (variant === "Login") {
@@ -24,19 +29,55 @@ const RegisterForm: React.FC = () => {
   }, [variant]);
 
   const handleSubmit = async (e: any) => {
-
+    e.preventDefault();
     if (variant === "Register") {
       if (!name || !email || !username || !password || !phoneNumber) {
-        setError("All fields are necessary. 😔")
+        toast.error("All fields are necessary. 😔");
       }
 
       try {
-        
-        const resUserExists = await fetch("api/register")
-      } catch (error) {
+        const resUserExists = await fetch("api/user-exists", {
+            method: "POST",
+            headers: {
+                "Content-Type" : "application/json",
+            },
+            body: JSON.stringify({email})
+        });
+
+        const {user} = await resUserExists.json();
+
+        if(user){
+            toast.error("user is already exists . try to use other email and username 😔");
+            return;
+        };
+
+        const res = await fetch("api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type" : "application/json",
+            },
+            body: JSON.stringify({
+                name,
+                username,
+                email,
+                password,
+                phoneNumber,
+            }),
+        });
+
+        if(res.ok) {
+            const form = e.target;
+            form.reset();
+            router.push("/about-user")
+        } else {
+            console.log("User registration failed. ❤️");
+        }
+      } catch (er : any) {
+        console.log("Error during registration ❤️❤️" , er);
         
       }
     }
+    
   };
   return (
     <form
@@ -108,10 +149,6 @@ const RegisterForm: React.FC = () => {
             </span>
           )}
         </p>
-      </div>
-      {/* errors */}
-      <div>
-        {error && <div className=" mt-3 text-rose-600 text-sm">{error}</div>}
       </div>
       <Button
         type="submit"

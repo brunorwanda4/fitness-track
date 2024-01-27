@@ -1,6 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Props {
   label: string;
@@ -23,14 +24,14 @@ const RegisterInput: React.FC<Props> = ({
 }) => {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <label className=" text-gray-500  text-base" htmlFor={id}>
+      <Label className=" text-gray-500  text-base" htmlFor={id}>
         {label}
-      </label>
+      </Label>
       <Input
         type={type}
         placeholder={placeholder}
         id={id}
-        className=" px-2 ring-red-500 outline-none w-full  bg-transparent border-b-2 border-rose-600 "
+        className=" px-2 ring-red-500 outline-none w-full  bg-transparent border-b-2 border-rose-600  text-white"
         onChange={onChange}
         //  onFocus={true}
       />
